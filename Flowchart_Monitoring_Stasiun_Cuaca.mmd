@@ -1,0 +1,129 @@
+flowchart TD
+    %% --------------------------------------------------------------
+    %% 1. Device side
+    %% --------------------------------------------------------------
+    subgraph Device["Device"]
+        direction LR
+        FW["Firmware (sensor read → buffer)"]
+        BATCH["Batch buffer (if offline)"]
+        HEART["Heartbeat timer"]
+    end
+
+    %% --------------------------------------------------------------
+    %% 2. Transport (HTTP)
+    %% --------------------------------------------------------------
+    subgraph Transport["Transport (HTTP)"]
+        direction LR
+        HTTP["HTTP POST /api/v1/ingest/telemetry*"]
+    end
+
+    %% --------------------------------------------------------------
+    %% 3. Backend – Ingestion Service
+    %%    (step 9 aggregate dihapus → agregasi jadi tanggung jawab DB)
+    %% --------------------------------------------------------------
+    subgraph Backend["Ingestion Service"]
+        direction TB
+        Auth["1️⃣ Authenticate device (API-key / HMAC)"]
+        Schema["2️⃣ Validate payload schema"]
+        SeqCheck["3️⃣ Check seq & ts order"]
+        DeDup["4️⃣ Idempotency / deduplication"]
+        Range["5️⃣ Range validation (min/max)"]
+        Calib["6️⃣ Apply calibration (offset/scale)"]
+        Enrich["7️⃣ Enrich record (quality_flag, battery, rssi, fw)"]
+        RawStore["8️⃣ Store raw reading (sensor_reading)"]
+    end
+
+    %% --------------------------------------------------------------
+    %% 4. DB (TimescaleDB / PostgreSQL)
+    %% --------------------------------------------------------------
+    subgraph DB["PostgreSQL (TimescaleDB)"]
+        direction TB
+        Hypertable[("sensor_reading hypertable")]
+        Policy{{"⏱ refresh policy<br/>add_continuous_aggregate_policy<br/>(background, otomatis)"}}
+        subgraph CAGG["Continuous Aggregates (materialized views)"]
+            direction LR
+            MV1M[("reading_agg_1m_mv<br/>time_bucket 1 minute")]
+            MV1H[("reading_agg_1h_mv<br/>time_bucket 1 hour")]
+            MV1D[("reading_agg_1d_mv<br/>time_bucket 1 day")]
+        end
+        DeviceTable[("device & device_status_history")]
+    end
+
+    %% --------------------------------------------------------------
+    %% 5. API layer for queries
+    %% --------------------------------------------------------------
+    subgraph QueryAPI["Query API"]
+        direction LR
+        GetLatest["GET /devices/{id}/readings/latest"]
+        GetSeries["GET /readings (raw, 1m, 1h, 1d)"]
+        GetSummary["GET /readings/summary"]
+    end
+
+    %% --------------------------------------------------------------
+    %% 6. Frontend (Nuxt)
+    %% --------------------------------------------------------------
+    subgraph Frontend["Dashboard UI"]
+        direction LR
+        Dash["Dashboard page"]
+        Charts["Charts (line, bar, wind-rose …)"]
+        DeviceList["Device list & health"]
+    end
+
+    %% --------------------------------------------------------------
+    %% Connections – data flow
+    %% --------------------------------------------------------------
+
+    %% Device → Transport
+    FW -->|"single payload"| HTTP
+    BATCH -->|"batch payload"| HTTP
+    HEART -->|"heartbeat payload"| HTTP
+
+    %% Transport → Backend
+    HTTP --> Auth
+    Auth --> Schema
+    Schema --> SeqCheck
+    SeqCheck --> DeDup
+    DeDup --> Range
+    Range --> Calib
+    Calib --> Enrich
+    Enrich --> RawStore
+    RawStore -->|"INSERT"| Hypertable
+
+    %% Continuous aggregate: dilakukan DB, BUKAN ingestion service
+    Hypertable -.->|"materialize GROUP BY<br/>device_id, sensor_type_id"| MV1M
+    Hypertable -.->|"materialize"| MV1H
+    Hypertable -.->|"materialize"| MV1D
+    Policy -.->|"schedules refresh 1m/1h/1d"| CAGG
+
+    %% Device status / health updates
+    Enrich -->|"health fields"| DeviceTable
+
+    %% Query API reads from DB
+    GetLatest -->|"SELECT latest"| Hypertable
+    GetSeries -->|"raw window"| Hypertable
+    GetSeries -->|"1m / 1h / 1d<br/>(real-time agg)"| CAGG
+    GetSummary -->|"daily summary"| MV1D
+
+    %% API → Frontend
+    GetLatest --> Dash
+    GetSeries --> Charts
+    GetSummary --> Dash
+    DeviceTable -->|"health data"| DeviceList
+
+    %% Frontend refresh / polling
+    Dash -->|"periodic poll"| GetLatest
+    Charts -->|"interval-based query"| GetSeries
+
+    %% --------------------------------------------------------------
+    %% Styling & annotations
+    %% --------------------------------------------------------------
+    classDef step fill:#f9f9f9,stroke:#333,stroke-width:1px;
+    classDef mv fill:#E3F2FD,stroke:#1565C0,stroke-width:1px;
+    classDef policy fill:#FFF8E1,stroke:#F9A825,stroke-width:1px;
+    class Auth,Schema,SeqCheck,DeDup,Range,Calib,Enrich,RawStore step;
+    class MV1M,MV1H,MV1D mv;
+    class Policy policy;
+
+    click Auth href "https://github.com/yourrepo/backend#device-authentication" "Auth details"
+    click DeDup href "https://github.com/yourrepo/backend#idempotency-logic" "Deduplication logic"
+    click Policy href "https://github.com/yourrepo/backend#continuous-aggregation" "Aggregation policy details"

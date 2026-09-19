@@ -1,0 +1,148 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#E3F2FD"
+    primaryTextColor: "#000000"
+    primaryBorderColor: "#1565C0"
+    lineColor: "#333333"
+---
+erDiagram
+    direction TB
+    DEVICE {
+        uuid id PK ""  
+        varchar name  ""  
+        uuid location_id FK ""  
+        varchar status  "provisioned, active, maintenance, decommissioned"  
+        varchar secret_hash  ""  
+        timestamp created_at  ""  
+        timestamp updated_at  ""  
+        timestamp deleted_at  "soft delete"  
+    }
+
+    LOCATION {
+        uuid id PK ""  
+        varchar name  ""  
+        float latitude  ""  
+        float longitude  ""  
+        float altitude  ""  
+    }
+
+    USER {
+        uuid id PK ""  
+        varchar name  ""  
+        varchar email  ""  
+        varchar password_hash  ""  
+        timestamp created_at  ""  
+        timestamp updated_at  ""  
+    }
+
+    SENSOR_TYPE {
+        uuid id PK ""  
+        varchar name  "contoh: temp_air, humidity"  
+        varchar unit  ""  
+        decimal min_value  ""  
+        decimal max_value  ""  
+        int precision  ""  
+    }
+
+    SENSOR {
+        uuid id PK ""  
+        uuid sensor_type_id FK ""  
+        varchar serial_number  "opsional"  
+        varchar model  ""  
+        timestamp created_at  ""  
+        timestamp updated_at  ""  
+    }
+
+    SENSOR_INSTALLATION {
+        uuid id PK ""  
+        uuid device_id FK ""  
+        uuid sensor_id FK ""  
+        timestamp installed_at  ""  
+        timestamp removed_at  "null jika masih terpasang"  
+    }
+
+    DEVICE_STATUS_HISTORY {
+        uuid id PK ""  
+        uuid device_id FK ""  
+        varchar status  ""  
+        timestamp changed_at  ""  
+        uuid changed_by_user_id FK ""  
+    }
+
+    SENSOR_READING {
+        uuid id PK ""  
+        uuid sensor_id FK ""  
+        uuid device_id FK ""  
+        timestamp device_ts  "timestamp dari payload"  
+        timestamp server_ts  "waktu diterima server"  
+        int seq  ""  
+        float raw_value  ""  
+        float calibrated_value  ""  
+        varchar quality_flag  ""  
+        float battery_v  ""  
+        int rssi  ""  
+        varchar firmware  ""  
+    }
+
+    SENSOR_CALIBRATION {
+        uuid id PK ""  
+        uuid sensor_id FK ""  
+        decimal offset  ""  
+        decimal scale  ""  
+        timestamp effective_from  ""  
+        timestamp effective_to  "null jika masih aktif"  
+    }
+
+    READING_AGG_1M_MV {
+        uuid device_id PK "grup; logical ref ke DEVICE"  
+        uuid sensor_type_id PK "grup; logical ref ke SENSOR_TYPE"  
+        timestamp interval_start PK "time_bucket(1 minute, server_ts)"  
+        float avg_value  "avg(calibrated_value)"  
+        float min_value  "min(calibrated_value)"  
+        float max_value  "max(calibrated_value)"  
+        int sample_count  "count(*)"  
+    }
+
+    READING_AGG_1H_MV {
+        uuid device_id PK "grup; logical ref ke DEVICE"  
+        uuid sensor_type_id PK "grup; logical ref ke SENSOR_TYPE"  
+        timestamp interval_start PK "time_bucket(1 hour, server_ts)"  
+        float avg_value  "avg(calibrated_value)"  
+        float min_value  "min(calibrated_value)"  
+        float max_value  "max(calibrated_value)"  
+        int sample_count  "count(*)"  
+    }
+
+    READING_AGG_1D_MV {
+        uuid device_id PK "grup; logical ref ke DEVICE"  
+        uuid sensor_type_id PK "grup; logical ref ke SENSOR_TYPE"  
+        timestamp interval_start PK "time_bucket(1 day, server_ts)"  
+        float avg_value  "avg(calibrated_value)"  
+        float min_value  "min(calibrated_value)"  
+        float max_value  "max(calibrated_value)"  
+        int sample_count  "count(*)"  
+    }
+
+    DEVICE}o--||LOCATION:"located at"
+    DEVICE||--o{DEVICE_STATUS_HISTORY:"has status changes"
+    USER||--o{DEVICE_STATUS_HISTORY:"changed status"
+    SENSOR}o--||SENSOR_TYPE:"has type"
+    SENSOR||--o{SENSOR_INSTALLATION:"installed on device"
+    SENSOR_INSTALLATION}o--||SENSOR:"belongs to"
+    SENSOR_INSTALLATION}o--||DEVICE:"belongs to"
+    SENSOR||--o{SENSOR_CALIBRATION:"has calibrations"
+    SENSOR_CALIBRATION}o--||SENSOR:"belongs to"
+    SENSOR_READING}o--||SENSOR:"from sensor"
+    SENSOR_READING}o--||DEVICE:"from device"
+
+    SENSOR_READING||..o{READING_AGG_1M_MV:"aggregated into (continuous agg 1m)"
+    SENSOR_READING||..o{READING_AGG_1H_MV:"aggregated into (continuous agg 1h)"
+    SENSOR_READING||..o{READING_AGG_1D_MV:"aggregated into (continuous agg 1d)"
+    READING_AGG_1M_MV}o..||DEVICE:"dimensi device"
+    READING_AGG_1M_MV}o..||SENSOR_TYPE:"dimensi sensor type"
+    READING_AGG_1H_MV}o..||DEVICE:"dimensi device"
+    READING_AGG_1H_MV}o..||SENSOR_TYPE:"dimensi sensor type"
+    READING_AGG_1D_MV}o..||DEVICE:"dimensi device"
+    READING_AGG_1D_MV}o..||SENSOR_TYPE:"dimensi sensor type"
