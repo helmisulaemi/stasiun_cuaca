@@ -3,6 +3,7 @@
 namespace App\Support\Api;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class ApiResponse
 {
@@ -11,15 +12,11 @@ class ApiResponse
         int $status = 200,
         array $meta = [],
     ): JsonResponse {
-        $response = [
+        return response()->json([
+            'success' => true,
             'data' => $data,
-        ];
-
-        if (! empty($meta)) {
-            $response['meta'] = $meta;
-        }
-
-        return response()->json($response, $status);
+            'meta' => array_merge(['request_id' => Str::uuid()->toString()], $meta),
+        ], $status);
     }
 
     public static function error(
@@ -38,7 +35,9 @@ class ApiResponse
         }
 
         return response()->json([
+            'success' => false,
             'error' => $error,
+            'meta' => ['request_id' => Str::uuid()->toString()],
         ], $status);
     }
 }

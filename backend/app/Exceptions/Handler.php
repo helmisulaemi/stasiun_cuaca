@@ -25,11 +25,11 @@ class Handler
     {
         return match (true) {
             $e instanceof ValidationException => static::validationError($e),
-            $e instanceof AuthenticationException => static::unauthorized(),
+            $e instanceof AuthenticationException => static::unauthenticated(),
             $e instanceof \Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException => static::forbidden(),
             $e instanceof NotFoundHttpException => static::notFound(),
             $e instanceof QueryException => static::handleQueryException($e),
-            $e instanceof TooManyRequestsHttpException => static::rateLimitExceeded(),
+            $e instanceof TooManyRequestsHttpException => static::rateLimited(),
             $e instanceof HttpException => static::handleHttpException($e),
             default => static::internalServerError(),
         };
@@ -53,12 +53,12 @@ class Handler
         );
     }
 
-    public static function unauthorized(): \Illuminate\Http\JsonResponse
+    public static function unauthenticated(): \Illuminate\Http\JsonResponse
     {
         return ApiResponse::error(
             status: 401,
-            code: 'UNAUTHORIZED',
-            message: 'Token tidak valid atau sudah kedaluwarsa.',
+            code: 'UNAUTHENTICATED',
+            message: 'Kredensial tidak valid.',
         );
     }
 
@@ -75,7 +75,7 @@ class Handler
     {
         return ApiResponse::error(
             status: 404,
-            code: 'RESOURCE_NOT_FOUND',
+            code: 'NOT_FOUND',
             message: 'Resource tidak ditemukan.',
         );
     }
@@ -84,7 +84,7 @@ class Handler
     {
         return ApiResponse::error(
             status: 409,
-            code: 'RESOURCE_ALREADY_EXISTS',
+            code: 'CONFLICT',
             message: $message,
         );
     }
@@ -98,13 +98,13 @@ class Handler
         return static::internalServerError();
     }
 
-    public static function rateLimitExceeded(): \Illuminate\Http\JsonResponse
+    public static function rateLimited(int $retryAfter = 60): \Illuminate\Http\JsonResponse
     {
         return ApiResponse::error(
             status: 429,
-            code: 'RATE_LIMIT_EXCEEDED',
+            code: 'RATE_LIMITED',
             message: 'Terlalu banyak request. Silakan coba lagi nanti.',
-        );
+        )->header('Retry-After', $retryAfter);
     }
 
     public static function invalidRequest(): \Illuminate\Http\JsonResponse
@@ -121,7 +121,7 @@ class Handler
         return match ($e->getStatusCode()) {
             400 => static::invalidRequest(),
             404 => static::notFound(),
-            429 => static::rateLimitExceeded(),
+            429 => static::rateLimited(),
             default => static::internalServerError(),
         };
     }
