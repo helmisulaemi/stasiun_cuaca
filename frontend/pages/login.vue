@@ -69,6 +69,10 @@ const { post } = useApi()
 const token = useCookie('auth_token')
 const router = useRouter()
 
+if (token.value) {
+  navigateTo('/')
+}
+
 const form = reactive({
   email: '',
   password: '',

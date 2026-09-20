@@ -10,25 +10,26 @@
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <NuxtLink
                 to="/"
-                class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2"
-                :class="$route.path === '/' ? 'border-primary-500' : 'border-transparent hover:border-gray-300'"
+                class="inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2"
+                :class="$route.path === '/' ? 'text-gray-900 border-primary-500' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'"
               >
                 Dashboard
               </NuxtLink>
               <NuxtLink
                 to="/devices/manage"
-                class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2"
-                :class="$route.path === '/devices/manage' ? 'border-primary-500' : 'border-transparent hover:border-gray-300'"
+                class="inline-flex items-center px-1 pt-1 text-sm font-medium border-b-2"
+                :class="$route.path === '/devices/manage' ? 'text-gray-900 border-primary-500' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'"
               >
                 Management
               </NuxtLink>
             </div>
           </div>
-          <div class="flex items-center">
+          <div class="flex items-center space-x-4">
+            <span v-if="token" class="text-sm text-gray-500">Tersedia</span>
             <button
               v-if="token"
               @click="logout"
-              class="text-sm text-gray-500 hover:text-gray-700"
+              class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
               Logout
             </button>
@@ -45,9 +46,10 @@
 
 <script setup lang="ts">
 const token = useCookie('auth_token')
+const router = useRouter()
 
 function logout() {
   token.value = null
-  navigateTo('/login')
+  router.push('/login')
 }
 </script>
