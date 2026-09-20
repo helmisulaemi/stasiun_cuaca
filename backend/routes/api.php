@@ -20,9 +20,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('telemetry')->group(function() {
             Route::post('/', [IngestController::class, 'store']);
-            Route::post('/batch', function () {
-                return response()->json(['message' => 'TODO: D2 — Batch telemetry']);
-            });
+            Route::post('/batch', [IngestController::class, 'storeBatch']);
         });
 
         Route::post('/heartbeat', [IngestController::class, 'heartbeat']);

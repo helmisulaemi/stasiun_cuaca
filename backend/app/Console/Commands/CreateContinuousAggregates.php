@@ -45,6 +45,7 @@ class CreateContinuousAggregates extends Command
                     AVG(calibrated_value) AS avg_value,
                     MIN(calibrated_value) AS min_value,
                     MAX(calibrated_value) AS max_value,
+                    SUM(CASE WHEN s.name = 'rain_counter' THEN sr.rain_mm ELSE 0 END) AS total_rain_mm,
                     COUNT(*) AS sample_count
                 FROM sensor_readings sr
                 JOIN sensors s ON s.id = sr.sensor_id

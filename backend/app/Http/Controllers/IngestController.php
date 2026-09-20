@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreBatchTelemetryRequest;
 use App\Http\Requests\StoreTelemetryRequest;
 use App\Services\IngestService;
 use App\Support\Api\ApiResponse;
@@ -28,6 +29,18 @@ class IngestController extends Controller
             'rejected' => $result['rejected'],
             'items' => $result['items'],
         ]);
+    }
+
+    public function storeBatch(StoreBatchTelemetryRequest $request): JsonResponse
+    {
+        $device = $request->attributes->get('device');
+        $data = $request->validated();
+
+        $result = $this->ingestService->processBatch($device, $data);
+
+        $statusCode = ($result['rejected'] > 0 || $result['duplicates'] > 0) ? 207 : 200;
+
+        return ApiResponse::success($result, $statusCode);
     }
 
     public function heartbeat(Request $request): JsonResponse

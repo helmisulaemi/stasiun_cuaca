@@ -28,6 +28,7 @@ class SensorReading extends Model
         'battery_v',
         'rssi',
         'firmware',
+        'rain_mm',
     ];
 
     protected function casts(): array
@@ -38,6 +39,7 @@ class SensorReading extends Model
             'seq' => 'integer',
             'raw_value' => 'float',
             'calibrated_value' => 'float',
+            'rain_mm' => 'float',
             'battery_v' => 'float',
             'rssi' => 'integer',
         ];

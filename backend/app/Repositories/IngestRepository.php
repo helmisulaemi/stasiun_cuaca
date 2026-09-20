@@ -40,6 +40,7 @@ class IngestRepository implements IngestRepositoryInterface
                     'battery_v' => $reading['battery_v'],
                     'rssi' => $reading['rssi'],
                     'firmware' => $reading['firmware'],
+                    'rain_mm' => $reading['rain_mm'] ?? null,
                 ];
             }, $chunk);
 
@@ -75,6 +76,18 @@ class IngestRepository implements IngestRepositoryInterface
                     ->orWhere('effective_to', '>', $ts);
             })
             ->orderBy('effective_from', 'desc')
+            ->first();
+    }
+
+    public function findLastRainCounterByDevice(string $deviceId, string $sensorId, Carbon $currentTs): ?object
+    {
+        return DB::table('sensor_readings')
+            ->where('device_id', $deviceId)
+            ->where('sensor_id', $sensorId)
+            ->where('device_ts', '<', $currentTs) // untuk race condition
+            ->orderBy('device_ts', 'desc')
+            ->orderBy('id', 'desc')
+            ->select('raw_value', 'device_ts')
             ->first();
     }
 

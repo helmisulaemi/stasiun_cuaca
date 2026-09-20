@@ -17,5 +17,7 @@ interface IngestRepositoryInterface
 
     public function findActiveCalibration(string $sensorId, Carbon $ts): ?SensorCalibration;
 
+    public function findLastRainCounterByDevice(string $deviceId, string $sensorId, Carbon $currentTs): ?object;
+
     public function updateDeviceHealth(string $deviceId, array $data): void;
 }

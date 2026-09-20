@@ -84,6 +84,7 @@ erDiagram
         int seq  ""  
         float raw_value  ""  
         float calibrated_value  ""  
+        float rain_mm  "derived: delta × 0.2, hanya rain_counter"  
         varchar quality_flag  ""  
         float battery_v  ""  
         int rssi  ""  
@@ -106,6 +107,7 @@ erDiagram
         float avg_value  "avg(calibrated_value)"  
         float min_value  "min(calibrated_value)"  
         float max_value  "max(calibrated_value)"  
+        float total_rain_mm  "SUM(rain_mm)"  
         int sample_count  "count(*)"  
     }
 
@@ -116,6 +118,7 @@ erDiagram
         float avg_value  "avg(calibrated_value)"  
         float min_value  "min(calibrated_value)"  
         float max_value  "max(calibrated_value)"  
+        float total_rain_mm  "SUM(rain_mm)"  
         int sample_count  "count(*)"  
     }
 
@@ -126,6 +129,7 @@ erDiagram
         float avg_value  "avg(calibrated_value)"  
         float min_value  "min(calibrated_value)"  
         float max_value  "max(calibrated_value)"  
+        float total_rain_mm  "SUM(rain_mm)"  
         int sample_count  "count(*)"  
     }
 
