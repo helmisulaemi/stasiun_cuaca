@@ -22,6 +22,7 @@ class Handler
                     status: $e->getStatusCode(),
                     code: $e->getErrorCode(),
                     message: $e->getMessage(),
+                    details: $e->getDetails(),
                 );
             }
 

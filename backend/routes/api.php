@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CalibrationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\IngestController;
 use App\Http\Controllers\InstallationController;
+use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\SensorController;
 use App\Http\Controllers\SensorTypeController;
 use Illuminate\Support\Facades\Route;
@@ -68,6 +70,16 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/sensors/{id}/calibrations', [CalibrationController::class, 'index']);
         Route::post('/sensors/{id}/calibrations', [CalibrationController::class, 'store']);
+
+        /*
+        |----------------------------------------------
+        | Reading & Dashboard Endpoints (User Auth)
+        |----------------------------------------------
+        */
+        Route::get('/readings', [ReadingController::class, 'index']);
+        Route::get('/readings/summary', [ReadingController::class, 'summary']);
+        Route::get('/devices/{id}/readings/latest', [ReadingController::class, 'latest']);
+        Route::get('/dashboard/overview', [DashboardController::class, 'overview']);
     });
 
 });
