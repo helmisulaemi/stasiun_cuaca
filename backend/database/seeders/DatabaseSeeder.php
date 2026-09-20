@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
             LocationSeeder::class,
             SensorTypeSeeder::class,
             DeviceSeeder::class,

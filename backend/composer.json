@@ -9,6 +9,7 @@
         "php": "^8.2",
         "dedoc/scramble": "^0.13.45",
         "laravel/framework": "^11.31",
+        "laravel/sanctum": "^4.3",
         "laravel/tinker": "^2.9"
     },
     "require-dev": {

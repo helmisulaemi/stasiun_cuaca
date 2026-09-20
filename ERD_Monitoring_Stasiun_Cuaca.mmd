@@ -70,7 +70,9 @@ erDiagram
     DEVICE_STATUS_HISTORY {
         uuid id PK ""  
         uuid device_id FK ""  
+        varchar from_status  "status sebelum transisi"  
         varchar status  ""  
+        varchar reason  "alasan perubahan"  
         timestamp changed_at  ""  
         uuid changed_by_user_id FK ""  
     }
