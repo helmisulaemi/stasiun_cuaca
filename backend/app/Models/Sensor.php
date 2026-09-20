@@ -13,6 +13,7 @@ class Sensor extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'sensor_type_id',
         'serial_number',
         'model',

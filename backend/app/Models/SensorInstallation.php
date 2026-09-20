@@ -14,6 +14,7 @@ class SensorInstallation extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'device_id',
         'sensor_id',
         'installed_at',

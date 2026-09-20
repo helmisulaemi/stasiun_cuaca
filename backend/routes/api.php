@@ -1,7 +1,6 @@
 <?php
 
-use App\Exceptions\Handler;
-use App\Support\Api\ApiResponse;
+use App\Http\Controllers\IngestController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,17 +19,13 @@ Route::prefix('v1')->group(function () {
     Route::prefix('ingest')->middleware(['device.auth', 'throttle:device'])->group(function() {
 
         Route::prefix('telemetry')->group(function() {
-            Route::post('/', function () {
-                return ApiResponse::success(['message' => 'TODO: D1 — Single telemetry']);
-            });
+            Route::post('/', [IngestController::class, 'store']);
             Route::post('/batch', function () {
-                return ApiResponse::success(['message' => 'TODO: D2 — Batch telemetry']);
+                return response()->json(['message' => 'TODO: D2 — Batch telemetry']);
             });
         });
 
-        Route::post('/heartbeat', function () {
-            return ApiResponse::success(['message' => 'TODO: D3 — Heartbeat']);
-        });
+        Route::post('/heartbeat', [IngestController::class, 'heartbeat']);
     });
 
 });

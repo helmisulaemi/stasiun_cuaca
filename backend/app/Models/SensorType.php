@@ -14,6 +14,7 @@ class SensorType extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'name',
         'unit',
         'min_value',

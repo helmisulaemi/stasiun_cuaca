@@ -14,6 +14,7 @@ class SensorCalibration extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'sensor_id',
         'offset',
         'scale',

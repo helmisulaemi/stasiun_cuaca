@@ -17,6 +17,14 @@ class Handler
     public static function register(ExceptionsConfiguration $exceptions): void
     {
         $exceptions->renderable(function (Throwable $e) {
+            if ($e instanceof BusinessException) {
+                return ApiResponse::error(
+                    status: $e->getStatusCode(),
+                    code: $e->getErrorCode(),
+                    message: $e->getMessage(),
+                );
+            }
+
             return static::mapException($e);
         });
     }

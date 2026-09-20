@@ -14,6 +14,7 @@ class Location extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'id',
         'name',
         'latitude',
         'longitude',

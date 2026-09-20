@@ -16,6 +16,7 @@ class Device extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'id',
         'name',
         'location_id',
         'status',

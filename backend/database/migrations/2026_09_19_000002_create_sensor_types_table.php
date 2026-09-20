@@ -12,8 +12,8 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('name')->comment('contoh: temp_air, humidity');
             $table->string('unit');
-            $table->decimal('min_value', 10, 5);
-            $table->decimal('max_value', 10, 5);
+            $table->decimal('min_value', 20, 5);
+            $table->decimal('max_value', 20, 5);
             $table->integer('precision');
         });
     }
