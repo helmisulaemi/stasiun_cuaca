@@ -1,8 +1,12 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CalibrationController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\IngestController;
+use App\Http\Controllers\InstallationController;
+use App\Http\Controllers\SensorController;
+use App\Http\Controllers\SensorTypeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +52,22 @@ Route::prefix('v1')->group(function () {
         Route::post('/devices/{id}/status', [DeviceController::class, 'transitionStatus']);
         Route::get('/devices/{id}/health', [DeviceController::class, 'health']);
         Route::post('/devices/{id}/credentials/rotate', [DeviceController::class, 'rotateCredentials']);
+
+        /*
+        |----------------------------------------------
+        | Sensor Management Endpoints (User Auth)
+        |----------------------------------------------
+        */
+        Route::get('/sensor-types', [SensorTypeController::class, 'index']);
+        Route::post('/sensor-types', [SensorTypeController::class, 'store']);
+
+        Route::apiResource('sensors', SensorController::class)->except(['create', 'edit']);
+
+        Route::post('/devices/{id}/sensors', [InstallationController::class, 'store']);
+        Route::delete('/devices/{id}/sensors/{sensorId}', [InstallationController::class, 'destroy']);
+
+        Route::get('/sensors/{id}/calibrations', [CalibrationController::class, 'index']);
+        Route::post('/sensors/{id}/calibrations', [CalibrationController::class, 'store']);
     });
 
 });

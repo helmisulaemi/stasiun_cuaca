@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Interfaces\DeviceRepositoryInterface;
 use App\Interfaces\IngestRepositoryInterface;
+use App\Interfaces\SensorRepositoryInterface;
 use App\Repositories\DeviceRepository;
 use App\Repositories\IngestRepository;
+use App\Repositories\SensorRepository;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\Operation;
 use Dedoc\Scramble\Support\Generator\Parameter;
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(DeviceRepositoryInterface::class, DeviceRepository::class);
         $this->app->bind(IngestRepositoryInterface::class, IngestRepository::class);
+        $this->app->bind(SensorRepositoryInterface::class, SensorRepository::class);
     }
 
     /**
