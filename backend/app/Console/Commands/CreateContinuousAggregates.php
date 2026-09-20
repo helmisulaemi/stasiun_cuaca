@@ -39,18 +39,19 @@ class CreateContinuousAggregates extends Command
                 CREATE MATERIALIZED VIEW IF NOT EXISTS {$viewName}
                 WITH (timescaledb.continuous) AS
                 SELECT
-                    time_bucket('{$interval}', device_ts) AS interval_start,
-                    device_id,
-                    sensor_type_id,
-                    AVG(calibrated_value) AS avg_value,
-                    MIN(calibrated_value) AS min_value,
-                    MAX(calibrated_value) AS max_value,
-                    SUM(CASE WHEN s.name = 'rain_counter' THEN sr.rain_mm ELSE 0 END) AS total_rain_mm,
+                    time_bucket('{$interval}', sr.device_ts) AS interval_start,
+                    sr.device_id,
+                    s.sensor_type_id,
+                    AVG(sr.calibrated_value) AS avg_value,
+                    MIN(sr.calibrated_value) AS min_value,
+                    MAX(sr.calibrated_value) AS max_value,
+                    SUM(CASE WHEN st.name = 'rain_counter' THEN sr.rain_mm ELSE 0 END) AS total_rain_mm,
                     COUNT(*) AS sample_count
                 FROM sensor_readings sr
                 JOIN sensors s ON s.id = sr.sensor_id
+                JOIN sensor_types st ON st.id = s.sensor_type_id
                 WHERE sr.quality_flag = 'OK'
-                GROUP BY interval_start, device_id, sensor_type_id
+                GROUP BY interval_start, sr.device_id, s.sensor_type_id
             ");
         }
 

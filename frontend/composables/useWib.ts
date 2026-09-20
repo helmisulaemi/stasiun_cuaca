@@ -1,4 +1,15 @@
 export function useWib() {
+  function toWIBShort(utcString: string | null): string {
+    if (!utcString) return '--'
+    return new Date(utcString).toLocaleString('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
   function toWIB(utcString: string | null): string {
     if (!utcString) return '--'
     return new Date(utcString).toLocaleString('id-ID', {
@@ -31,5 +42,5 @@ export function useWib() {
     return minutes > thresholdMinutes
   }
 
-  return { toWIB, timeAgo, isStale }
+  return { toWIB, toWIBShort, timeAgo, isStale }
 }

@@ -309,12 +309,14 @@ class ReadingRepository implements ReadingRepositoryInterface
 
     private function enrichWithSensorType(Collection $rows): Collection
     {
-        $typeMap = DB::table('sensor_types')
-            ->pluck('name', 'id')
-            ->toArray();
+        $types = DB::table('sensor_types')
+            ->get(['id', 'name', 'unit'])
+            ->keyBy('id');
 
-        return $rows->map(function ($row) use ($typeMap) {
-            $row->sensor_type = $typeMap[$row->sensor_type_id] ?? $row->sensor_type_id;
+        return $rows->map(function ($row) use ($types) {
+            $type = $types->get($row->sensor_type_id);
+            $row->sensor_type = $type?->name ?? $row->sensor_type_id;
+            $row->unit = $type?->unit ?? '';
             return $row;
         });
     }

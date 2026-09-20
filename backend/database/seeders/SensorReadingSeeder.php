@@ -18,7 +18,7 @@ class SensorReadingSeeder extends Seeder
 
         $now = now('UTC');
         $startDate = $now->copy()->subDays(7)->startOfHour();
-        $intervalMinutes = 10;
+        $intervalMinutes = 1;
         $totalReadings = 0;
 
         foreach ($devices as $device) {
@@ -29,6 +29,7 @@ class SensorReadingSeeder extends Seeder
             }
 
             $rainCounter = 0;
+            $prevRainCounter = null;
 
             $current = $startDate->copy();
             while ($current->lessThan($now)) {
@@ -57,6 +58,12 @@ class SensorReadingSeeder extends Seeder
 
                     $qualityFlag = $this->determineQualityFlag($sensorCode, $value, $sensorType);
 
+                    $rainMm = 0.0;
+                    if ($sensorCode === 'rain_counter' && $prevRainCounter !== null) {
+                        $delta = ($value < $prevRainCounter) ? $value : ($value - $prevRainCounter);
+                        $rainMm = round($delta * 0.2, 4);
+                    }
+
                     SensorReading::create([
                         'id' => Str::uuid()->toString(),
                         'sensor_id' => $sensor->id,
@@ -66,6 +73,7 @@ class SensorReadingSeeder extends Seeder
                         'seq' => $current->timestamp - $startDate->timestamp,
                         'raw_value' => $value,
                         'calibrated_value' => $value,
+                        'rain_mm' => $rainMm,
                         'quality_flag' => $qualityFlag,
                         'battery_v' => round(3.8 + (mt_rand(0, 40) / 100), 2),
                         'rssi' => mt_rand(-80, -50),
@@ -73,6 +81,7 @@ class SensorReadingSeeder extends Seeder
                     ]);
                 }
 
+                $prevRainCounter = $rainCounter;
                 if (isset($readings['rain_counter'])) {
                     $rainCounter = $readings['rain_counter'];
                 }
@@ -123,7 +132,7 @@ class SensorReadingSeeder extends Seeder
                 ]);
             }
 
-            $current->addMinutes(10);
+            $current->addMinutes(1);
         }
     }
 

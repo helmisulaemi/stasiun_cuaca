@@ -49,11 +49,19 @@ class ReadingService
 
         $result = [];
         foreach ($grouped as $typeName => $rows) {
-            $unit = $rows->first()->unit;
+            $isRain = $typeName === 'rain_counter';
+            $unit = $isRain ? 'mm' : $rows->first()->unit;
+
             $timestamps = $rows->pluck('interval_start')->map(function ($t) {
                 return $t instanceof Carbon ? $t->toISOString() : Carbon::parse($t)->toISOString();
             })->values()->all();
-            $values = $rows->pluck('value')->map(fn ($v) => round($v, 2))->values()->all();
+
+            $values = $rows->map(function ($row) use ($isRain) {
+                if ($isRain) {
+                    return round($row->total_rain_mm ?? $row->rain_mm ?? 0, 2);
+                }
+                return round($row->value, 2);
+            })->values()->all();
 
             $result[] = [
                 'sensor_type' => $typeName,
