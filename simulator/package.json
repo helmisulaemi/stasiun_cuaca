@@ -1,0 +1,13 @@
+{
+  "name": "weather-station-simulator",
+  "version": "1.0.0",
+  "description": "Device simulator for Weather Station Monitoring Platform",
+  "type": "module",
+  "scripts": {
+    "normal": "node index.js --scenario=normal",
+    "batch": "node index.js --scenario=offline-batch",
+    "duplicate": "node index.js --scenario=duplicate"
+  },
+  "keywords": ["iot", "simulator", "weather-station"],
+  "license": "MIT"
+}
