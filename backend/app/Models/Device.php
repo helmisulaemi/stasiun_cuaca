@@ -20,11 +20,17 @@ class Device extends Model
         'location_id',
         'status',
         'secret_hash',
+        'last_seen_at',
+        'last_battery_v',
+        'last_rssi',
+        'fw_version',
     ];
 
     protected function casts(): array
     {
         return [
+            'last_seen_at' => 'datetime',
+            'last_battery_v' => 'float',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
             'deleted_at' => 'datetime',
