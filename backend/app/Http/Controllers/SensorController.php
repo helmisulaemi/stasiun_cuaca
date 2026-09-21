@@ -45,4 +45,10 @@ class SensorController extends Controller
         $this->sensorService->deleteSensor($id);
         return ApiResponse::success(null, 204);
     }
+
+    public function available(): JsonResponse
+    {
+        $sensors = $this->sensorService->getAvailableSensors();
+        return ApiResponse::success($sensors);
+    }
 }

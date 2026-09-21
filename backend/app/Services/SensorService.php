@@ -10,6 +10,7 @@ use App\Models\SensorInstallation;
 use App\Models\SensorType;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class SensorService
 {
@@ -138,5 +139,10 @@ class SensorService
             'scale' => $data['scale'],
             'effective_from' => $data['effective_from'],
         ]);
+    }
+
+    public function getAvailableSensors(): Collection
+    {
+        return $this->sensorRepository->getAvailable();
     }
 }

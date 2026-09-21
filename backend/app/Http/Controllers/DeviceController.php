@@ -82,4 +82,11 @@ class DeviceController extends Controller
 
         return ApiResponse::success($result);
     }
+
+    public function sensors(string $id): JsonResponse
+    {
+        $sensors = $this->deviceService->getInstalledSensors($id);
+
+        return ApiResponse::success($sensors);
+    }
 }

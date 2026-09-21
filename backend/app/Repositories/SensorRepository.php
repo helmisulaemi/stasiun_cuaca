@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\SensorRepositoryInterface;
 use App\Models\Sensor;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class SensorRepository implements SensorRepositoryInterface
 {
@@ -53,5 +54,17 @@ class SensorRepository implements SensorRepositoryInterface
     public function countBySensorType(string $sensorTypeId): int
     {
         return Sensor::where('sensor_type_id', $sensorTypeId)->count();
+    }
+
+    public function getAvailable(): Collection
+    {
+        return Sensor::with('sensorType')
+            ->whereNotIn('id', function ($query) {
+                $query->select('sensor_id')
+                    ->from('sensor_installations')
+                    ->whereNull('removed_at');
+            })
+            ->orderBy('serial_number')
+            ->get();
     }
 }

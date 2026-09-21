@@ -62,7 +62,12 @@ export function useApi() {
         method: method as any,
         headers,
         body: body ? JSON.stringify(body) : undefined,
+        parseResponse: (txt) => txt ? JSON.parse(txt) : null,
       })
+
+      if (!res) {
+        return { data: null, error: null }
+      }
 
       if (!res.success) {
         return { data: null, error: res.error?.message || 'Terjadi kesalahan' }

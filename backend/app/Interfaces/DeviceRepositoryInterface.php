@@ -3,6 +3,7 @@
 namespace App\Interfaces;
 
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface DeviceRepositoryInterface
 {
@@ -19,6 +20,8 @@ interface DeviceRepositoryInterface
     public function getPaginated(array $filters): LengthAwarePaginator;
 
     public function getHealthData(string $id): ?array;
+
+    public function getInstalledSensors(string $deviceId): Collection;
 
     public function generateSecret(): array;
 

@@ -13,7 +13,7 @@ class SensorSeeder extends Seeder
 {
     public function run(): void
     {
-        $devices = Device::all();
+        $devices = Device::where('name','BDG-TIRRA-001')->get();
         $sensorTypes = SensorType::all();
 
         foreach ($devices as $device) {

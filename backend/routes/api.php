@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\IngestController;
 use App\Http\Controllers\InstallationController;
+use App\Http\Controllers\LocationController;
 use App\Http\Controllers\ReadingController;
 use App\Http\Controllers\SensorController;
 use App\Http\Controllers\SensorTypeController;
@@ -53,6 +54,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/devices/{id}/status', [DeviceController::class, 'transitionStatus']);
         Route::get('/devices/{id}/health', [DeviceController::class, 'health']);
+        Route::get('/devices/{id}/sensors', [DeviceController::class, 'sensors']);
         Route::post('/devices/{id}/credentials/rotate', [DeviceController::class, 'rotateCredentials']);
 
         /*
@@ -63,6 +65,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/sensor-types', [SensorTypeController::class, 'index']);
         Route::post('/sensor-types', [SensorTypeController::class, 'store']);
 
+        Route::get('/sensors/available', [SensorController::class, 'available']);
         Route::apiResource('sensors', SensorController::class)->except(['create', 'edit']);
 
         Route::post('/devices/{id}/sensors', [InstallationController::class, 'store']);
@@ -76,6 +79,7 @@ Route::prefix('v1')->group(function () {
         | Reading & Dashboard Endpoints (User Auth)
         |----------------------------------------------
         */
+        Route::get('/locations', [LocationController::class, 'index']);
         Route::get('/readings', [ReadingController::class, 'index']);
         Route::get('/readings/summary', [ReadingController::class, 'summary']);
         Route::get('/devices/{id}/readings/latest', [ReadingController::class, 'latest']);

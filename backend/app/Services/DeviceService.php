@@ -7,6 +7,7 @@ use App\Interfaces\DeviceRepositoryInterface;
 use App\Models\Device;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class DeviceService
 {
@@ -102,5 +103,11 @@ class DeviceService
         }
 
         return $health;
+    }
+
+    public function getInstalledSensors(string $deviceId): Collection
+    {
+        $this->deviceRepository->getById($deviceId);
+        return $this->deviceRepository->getInstalledSensors($deviceId);
     }
 }

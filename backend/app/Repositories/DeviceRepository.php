@@ -5,8 +5,10 @@ namespace App\Repositories;
 use App\Interfaces\DeviceRepositoryInterface;
 use App\Models\Device;
 use App\Models\DeviceStatusHistory;
+use App\Models\SensorInstallation;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 
 class DeviceRepository implements DeviceRepositoryInterface
 {
@@ -94,6 +96,25 @@ class DeviceRepository implements DeviceRepositoryInterface
         $hash = hash('sha256', $plain);
 
         return ['plain' => $plain, 'hash' => $hash];
+    }
+
+    public function getInstalledSensors(string $deviceId): Collection
+    {
+        return SensorInstallation::where('device_id', $deviceId)
+            ->whereNull('removed_at')
+            ->join('sensors', 'sensors.id', '=', 'sensor_installations.sensor_id')
+            ->join('sensor_types', 'sensor_types.id', '=', 'sensors.sensor_type_id')
+            ->select(
+                'sensor_installations.id as installation_id',
+                'sensor_installations.installed_at',
+                'sensors.id as sensor_id',
+                'sensors.serial_number',
+                'sensors.model',
+                'sensor_types.name as sensor_type_name',
+                'sensor_types.unit',
+            )
+            ->orderBy('sensor_types.name')
+            ->get();
     }
 
     public function recordStatusTransition(string $deviceId, ?string $from, string $to, ?string $reason, ?string $userId): void
